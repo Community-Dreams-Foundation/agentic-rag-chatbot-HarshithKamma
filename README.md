@@ -46,9 +46,9 @@ You may implement one feature or multiple. Partial implementations are acceptabl
 ---
 
 ## Participant Info (Required)
-- Full Name:
-- Email:
-- GitHub Username:
+- Full Name: Harshith Kamma
+- Email: harshithk0403@gmail.com
+- GitHub Username: HarshithKamma
 
 ---
 
@@ -245,10 +245,23 @@ Provide exact commands a judge can run.
 
 Example (replace with your real commands):
 
-```text
-# install dependencies
-# run the app
-# open UI or run CLI
+```bash
+# 1. Create and activate virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Configure API Key
+cp .env.example .env
+# Open .env and paste your GOOGLE_API_KEY
+
+# 4. Run the Streamlit App
+streamlit run src/app.py
+
+# 5. Run Sanity Check (for submission)
+make sanity
 ```
 
 ---
