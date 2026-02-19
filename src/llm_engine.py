@@ -3,16 +3,20 @@ import google.generativeai as genai
 import json
 from typing import List, Dict
 
+from tenacity import retry, stop_after_attempt, wait_exponential
+
 class LLMEngine:
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+   
+        self.model = genai.GenerativeModel('gemini-2.0-flash-lite-001')
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def generate_response(self, query: str, context_chunks: List[str]) -> str:
         """Generates a response based on the query and retrieved context."""
         
         context_text = "\n\n".join(context_chunks)
         
-        # System prompt with clear citation instruction
+       
         prompt = f"""
         You are a helpful assistant. Answer the user's question based ONLY on the provided context.
         If the answer is not in the context, say "I don't have enough information to answer that."
@@ -28,6 +32,7 @@ class LLMEngine:
         response = self.model.generate_content(prompt)
         return response.text
 
+    @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=2, min=5, max=60))
     def extract_memory(self, user_input: str, bot_response: str) -> Dict[str, str]:
         """Analyzes the interaction to extract persistent memories."""
         
@@ -48,12 +53,8 @@ class LLMEngine:
         }}
         """
         
-        try:
-            response = self.model.generate_content(
-                prompt,
-                generation_config={"response_mime_type": "application/json"}
-            )
-            return json.loads(response.text)
-        except Exception as e:
-            print(f"Memory extraction failed: {e}")
-            return {"user_memory": "", "company_memory": ""}
+        response = self.model.generate_content(
+            prompt,
+            generation_config={"response_mime_type": "application/json"}
+        )
+        return json.loads(response.text)

@@ -40,6 +40,9 @@ with st.sidebar:
             num_chunks = st.session_state.rag.ingest_file(file_path, uploaded_file.name)
             st.success(f"Ingested {num_chunks} chunks!")
 
+    st.divider()
+    enable_memory = st.checkbox("Enable Memory Extraction", value=False, help="Enable this to extract facts (Uses more API quota)")
+
 
 st.title("Agentic RAG Assistant")
 
@@ -82,21 +85,30 @@ if prompt := st.chat_input("Ask a question about your documents..."):
         
         st.session_state.chat_history.append({"role": "assistant", "content": response})
 
-        # Memory Extraction (Display as status)
-        with st.status("Updating Memory...", expanded=False) as status:
-            memories = st.session_state.llm.extract_memory(
-                prompt, response
-            )
-            
-            if memories.get("user_memory"):
-                st.session_state.memory.update_user_memory(memories["user_memory"])
-                st.write(f"💾 Saved User Fact: {memories['user_memory']}")
-                
-            if memories.get("company_memory"):
-                st.session_state.memory.update_company_memory(memories["company_memory"])
-                st.write(f"🏢 Saved Company Learning: {memories['company_memory']}")
-            
-            if not memories.get("user_memory") and not memories.get("company_memory"):
-                st.write("No new memories extracted.")
-            
-            status.update(label="Memory Updated", state="complete")
+     
+        if enable_memory:
+            with st.status("Updating Memory...", expanded=False) as status:
+                try:
+                   
+                    import time
+                    time.sleep(2) 
+                    
+                    memories = st.session_state.llm.extract_memory(
+                        prompt, response
+                    )
+                    
+                    if memories.get("user_memory"):
+                        st.session_state.memory.update_user_memory(memories["user_memory"])
+                        st.write(f"💾 Saved User Fact: {memories['user_memory']}")
+                        
+                    if memories.get("company_memory"):
+                        st.session_state.memory.update_company_memory(memories["company_memory"])
+                        st.write(f"🏢 Saved Company Learning: {memories['company_memory']}")
+                    
+                    if not memories.get("user_memory") and not memories.get("company_memory"):
+                        st.write("No new memories extracted.")
+                    
+                    status.update(label="Memory Updated", state="complete")
+                except Exception as e:
+                    status.update(label="Memory Update Skipped (Rate Limit)", state="error")
+                    st.write(f"Memory update skipped: {e}")

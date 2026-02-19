@@ -1,57 +1,38 @@
 # Architecture Overview
 
 ## Goal
-Provide a brief, readable overview of how your chatbot works:
-- ingestion
-- indexing
-- retrieval + grounding with citations
-- memory writing
-- optional safe tool execution
-
-Keep this short (1–2 pages).
-
----
+An AI-first chatbot that provides file-grounded Q&A (RAG) and maintains durable memory of high-signal facts.
 
 ## High-Level Flow
 
-### 1) Ingestion (Upload → Parse → Chunk)
-- Supported inputs:
-- Parsing approach:
-- Chunking strategy:
-- Metadata captured per chunk (recommended):
-  - source filename
-  - page/section (if available)
-  - chunk_id
+### 1. Ingestion (Upload → Parse → Chunk)
+- **Inputs**: PDF, TXT, MD files via Streamlit UI.
+- **Parsing**: `pypdf` for PDFs, standard file reading for text/markdown.
+- **Chunking**: Text is split recursively into 1000-character chunks with 200-character overlap to maintain context.
+- **Metadata**: Each chunk is tagged with its `source` filename and a `chunk_id`.
 
-### 2) Indexing / Storage
-- Vector store choice (FAISS/Chroma/pgvector/etc):
-- Persistence:
-- Optional lexical index (BM25):
+### 2. Indexing / Storage
+- **Vector Database**: `ChromaDB` (Persistent Client) stores embeddings locally in `./chroma_db`.
+- **Embeddings**: Uses Google's `models/gemini-embedding-001` via the `google-generativeai` library.
+- **Persistence**: Data survives app restarts.
 
-### 3) Retrieval + Grounded Answering
-- Retrieval method (top-k, filters, reranking):
-- How citations are built:
-  - citation includes: source, locator (page/section), snippet
-- Failure behavior:
-  - what happens when retrieval is empty/low confidence
+### 3. Retrieval + Grounded Answering
+- **Retrieval**: Uses semantic search (cosine similarity) to find the top-3 most relevant chunks. Reduced from top-5 to optimize for Free Tier token limits.
+- **Generation**:
+    - **Model**: `models/gemini-2.0-flash-lite-001` (chosen for stability and free tier availability).
+    - **Prompting**: System prompt instructs the model to answer *only* based on the retrieved context.
+    - **Robustness**: Implements `tenacity` retry logic with exponential backoff to handle `429 Resource Exhausted` errors gracefully.
+    - **Fallback**: If the API is completely overwhelmed, valuable error messages are displayed without crashing the UI.
 
-### 4) Memory System (Selective)
-- What counts as “high-signal” memory:
-- What you explicitly do NOT store (PII/secrets/raw transcript):
-- How you decide when to write:
-- Format written to:
-  - `USER_MEMORY.md`
-  - `COMPANY_MEMORY.md`
+### 4. Memory System (Selective)
+- **Extraction**: A secondary LLM call analyzes every User/Assistant exchange.
+- **High-Signal Protocol**:
+    - Extracts `user_memory` (facts about the user).
+    - Extracts `company_memory` (organizational learnings).
+- **Storage**: Appends bullet points to `USER_MEMORY.md` and `COMPANY_MEMORY.md`.
+- **User Control**: A "Enable Memory Extraction" toggle allows users to opt-in/out to manage API quota usage.
 
-### 5) Optional: Safe Tooling (Open-Meteo)
-- Tool interface shape:
-- Safety boundaries:
-  - timeouts
-  - restricted imports / sandbox isolation
-  - network access rules (if applicable)
-
----
-
-## Tradeoffs & Next Steps
-- Why this design?
-- What you would improve with more time:
+## Technical Decisions & Tradeoffs
+- **Gemini Free Tier**: We chose `flash-lite` and reduced context size to work within strict rate limits (`15 RPM`, `1M TPM`).
+- **Synchronous Memory**: Memory extraction happens after the answer. In a production app, this would be an async background task to improve latency.
+- **Local Vectors**: ChromaDB is running in-process for simplicity. For scale, a client/server setup would be preferred.

@@ -161,7 +161,7 @@ Add your video link here:
 
 ## Video Walkthrough
 
-[INSERT VIDEO LINK HERE]
+
 
 ## 4) Important
 Submissions missing the Participant Info block may be deprioritized during review.

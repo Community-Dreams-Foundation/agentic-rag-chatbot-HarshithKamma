@@ -11,7 +11,10 @@ if os.getenv("GOOGLE_API_KEY"):
     genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 class RAGEngine:
-    def __init__(self, persist_directory: str = "chroma_db"):
+    def __init__(self, api_key: str = None, persist_directory: str = "chroma_db"):
+        if api_key:
+            genai.configure(api_key=api_key)
+            
         self.chroma_client = chromadb.PersistentClient(path=persist_directory)
         
         # Use a custom embedding function adapter for Gemini
@@ -24,14 +27,13 @@ class RAGEngine:
 
     def _create_gemini_embedding_fn(self):
         """Creates a ChromaDB-compatible embedding function using Gemini."""
-        # Define a wrapper class that matches Chroma's expectation
+       
         class GeminiEmbeddingFunction(chromadb.EmbeddingFunction):
             def __call__(self, input: chromadb.Documents) -> chromadb.Embeddings:
-                # Gemini embedding model
-                model = "models/text-embedding-004"
+               
+                model = "models/gemini-embedding-001"
                 
-                # Batch embedding if needed, but for simplicity here we loop or use batch support if available
-                # genai.embed_content supports batching
+              
                 result = genai.embed_content(
                     model=model,
                     content=input,
@@ -42,7 +44,7 @@ class RAGEngine:
         return GeminiEmbeddingFunction()
 
     def _get_query_embedding(self, text: str) -> List[float]:
-        model = "models/text-embedding-004"
+        model = "models/gemini-embedding-001"
         result = genai.embed_content(
             model=model,
             content=text,
@@ -68,7 +70,7 @@ class RAGEngine:
         metadatas = []
         
         for i, chunk in enumerate(chunks):
-            # Create a deterministic ID
+           
             chunk_id = hashlib.md5(f"{original_filename}_{i}".encode()).hexdigest()
             ids.append(chunk_id)
             documents.append(chunk)
@@ -99,12 +101,9 @@ class RAGEngine:
             
         return chunks
 
-    def retrieve(self, query: str, n_results: int = 5) -> Dict[str, Any]:
+    def retrieve(self, query: str, n_results: int = 3) -> Dict[str, Any]:
         """Retrieves relevant documents for a query."""
-        # We need to manually embed the query if using the custom class in a specific way,
-        # but Chroma's collection.query automatically uses the embedding_function defined on the collection.
-        # However, for Gemini, task_type differs for document vs query. 
-        # So we might need to override query_embeddings.
+
         
         query_embedding = self._get_query_embedding(query)
         

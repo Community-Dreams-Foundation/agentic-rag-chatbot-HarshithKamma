@@ -1,0 +1,37 @@
+{
+  "implemented_features": [
+    "A",
+    "B"
+  ],
+  "qa": [
+    {
+      "question": "What is the secret code?",
+      "answer": "The secret code is BlueJay (Fallback due to API Error).",
+      "citations": [
+        {
+          "source": "sanity_doc.txt",
+          "locator": "chunk_0",
+          "snippet": "The secret code for the project is 'BlueJay'. The deadline is Friday."
+        },
+        {
+          "source": "CDF_DreamStream_Agreement 2.pdf",
+          "locator": "chunk_5",
+          "snippet": " atany time, but as a courtesy, both parties agree to provide atleast seven (7) calendar days\u2019 written notice prior todiscontinuing the engagement.\n \nAcknowledgment and Acceptance\nBy signing below, I confirm I have read, understand, andagree to these terms. I recognize my service is voluntary, andI commit to upholding \u201cOne Team, One Dream.\u201d\nSignature: __________________                                                 Date: __________________\nPrinted Name: _________________________\n One team, one dream! Dion RichardsonPresident\nCommunity Dreams Foundation\ndion@cdreams.org\nM: (407) 729-0229\ncdreams.org\nEIN: 85-2790061\nE-Verify #: 2337221\nHarshith Kamma.\nte12106/2025\n"
+        },
+        {
+          "source": "CDF_DreamStream_Agreement 2.pdf",
+          "locator": "chunk_0",
+          "snippet": "205 SWALLOW A VESEBRING, FL 33870\n \nCommunity Dreams Foundation\nEmail: humanresources@cdreams.org\nVolunteer & Membership Agreement for DreamStream\nFellowship\n \nVolunteer Information\nName: ___________________________\nAddress: _________________________\nEmail: ___________________________\nPhone: ___________________________\nPreamble\nI, the undersigned, agree to serve as an unpaid volunteer for theCommunity Dreams Foundation (\u201cCDF\u201d) and, by virtue of thisservice, become a member of the DreamStream Fellowship. Iunderstand that my $15 monthly membership contribution is avoluntary donation to support CDF\u2019s nonprofit platformoperations and is not compensation for my services. I furtherunderstand that failure to contribute (or obtain an approvedwaiver) may result in suspension or termination of myFellowship membership and volunteer status.\nHarshith Kamma\n15214 Wesley Way, Tustin, California, 92782\nharshithk0403@gmail.com\n6028134661\n \n1. Membership & Volunteer Commitment\n1.1 V olunteer Status\n\u25cf My"
+        }
+      ]
+    }
+  ],
+  "demo": {
+    "memory_writes": [
+      {
+        "target": "COMPANY",
+        "summary": "Project code is BlueJay (Sanity Fallback)"
+      }
+    ]
+  }
+}
