@@ -161,7 +161,7 @@ Add your video link here:
 
 ## Video Walkthrough
 
-PASTE YOUR LINK HERE
+[INSERT VIDEO LINK HERE]
 
 ## 4) Important
 Submissions missing the Participant Info block may be deprioritized during review.
@@ -239,7 +239,7 @@ These are optional enhancements. They are not required, but can earn bonus point
 
 ---
 
-## Quick Start (YOU MUST FILL THIS IN)
+## Quick Start
 
 Provide exact commands a judge can run.
 
